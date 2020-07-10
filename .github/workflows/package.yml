@@ -1,29 +1,25 @@
 name: Npm Package
 
 on:
-    push:
-        branches:
-            - js
-            - preprelease
+  push:
+    branches:
+      - js
+      - preprelease
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                  node-version: 12
-                  registry-url: https://registry.npmjs.org/
-            # - run: npm ci
-            - name: Bump version
-              uses: ./
-              with:
-                  version_file: VERSION
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            # - run: npm publish
-            #   env:
-            #       NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-
-
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      # - run: npm ci
+      - name: Bump version
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - run: npm publish
+      #   env:
+      #       NODE_AUTH_TOKEN: ${{ secrets.npm_token }}

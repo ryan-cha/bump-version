@@ -7,7 +7,7 @@ branding:
 inputs:
   version_file:
     description: "Version file to bump path"
-    default: "VERSION"
+    default: "package.json"
     required: false
   prefix:
     description: "how to prefix the tag"
