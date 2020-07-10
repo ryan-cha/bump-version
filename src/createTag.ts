@@ -1,19 +1,19 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-export async function createTag({ tagName, tagMsg = "" }) {
+export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
   if (!process.env.GITHUB_WORKSPACE || !process.env.GITHUB_REPOSITORY) {
     console.log("not in Github Action, skipping tag creation with github api");
     return;
   }
-  if (!process.env.INPUT_GITHUB_TOKEN) {
+  if (!GITHUB_TOKEN) {
     console.log("missing required env vars, skipping tag creation");
     core.setFailed("missing required env vars");
     return;
   }
   console.log(`creating tag "${tagName}"`);
   // Check for existing tag
-  const git = new github.GitHub(process.env.INPUT_GITHUB_TOKEN);
+  const git = new github.GitHub(GITHUB_TOKEN);
   const owner = process.env.GITHUB_ACTOR as string;
   const repo = process.env.GITHUB_REPOSITORY?.split("/").pop() as string;
 

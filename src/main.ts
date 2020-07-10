@@ -62,7 +62,9 @@ async function run() {
     linesReplaced = res.linesReplaced;
   }
   const tagName = prefix ? prefix + "_" + newVersion : newVersion;
-  const tagMsg = `${capitalize(prefix) + " "}Version ${newVersion} [skip ci]`;
+  const tagMsg = `${
+    capitalize(prefix) + " "
+  } Auto Version Bumped! ${newVersion}`;
   await Promise.all([
     commit({
       USER_EMAIL: "auto-bumper@no-reply.bumper.com",
@@ -74,6 +76,7 @@ async function run() {
       branch,
     }),
     createTag({
+      GITHUB_TOKEN: githubToken,
       tagName,
       tagMsg,
     }),
