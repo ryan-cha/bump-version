@@ -101,20 +101,20 @@ async function run() {
   console.log("setting output version=" + newVersion + " prefix=" + prefix);
 
   const files = await globby("package.json");
-
-  if (files && files.length) {
-    await createAnnotations({
-      githubToken,
-      newVersion: tagMsg,
-      linesReplaced: [
-        {
-          line: lineIndex,
-          path: files[0],
-          newValue: newVersion,
-        },
-      ],
-    });
-  }
+  console.log(files);
+  //   if (files && files.length) {
+  //     await createAnnotations({
+  //       githubToken,
+  //       newVersion: tagMsg,
+  //       linesReplaced: [
+  //         {
+  //           line: lineIndex,
+  //           path: files[0],
+  //           newValue: newVersion,
+  //         },
+  //       ],
+  //     });
+  //   }
 
   core.setOutput("version", newVersion);
   core.setOutput("prefix", prefix);
