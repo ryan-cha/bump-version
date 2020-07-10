@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as fs from "fs";
+import globby from "globby";
 import commit from "./commit";
 import { createTag } from "./createTag";
 import {
@@ -98,17 +99,23 @@ async function run() {
     }),
   ]);
   console.log("setting output version=" + newVersion + " prefix=" + prefix);
-  await createAnnotations({
-    githubToken,
-    newVersion: tagMsg,
-    linesReplaced: [
-      {
-        line: lineIndex,
-        path: "./package.json",
-        newValue: newVersion,
-      },
-    ],
-  });
+
+  const files = await globby("package.json");
+
+  if (files && files.length) {
+    await createAnnotations({
+      githubToken,
+      newVersion: tagMsg,
+      linesReplaced: [
+        {
+          line: lineIndex,
+          path: files[0],
+          newValue: newVersion,
+        },
+      ],
+    });
+  }
+
   core.setOutput("version", newVersion);
   core.setOutput("prefix", prefix);
   core.info(`new version ${tagMsg}`);
