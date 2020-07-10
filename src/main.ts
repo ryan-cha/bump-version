@@ -28,7 +28,22 @@ async function run() {
     "master";
   const versionPath = core.getInput("version_file") || "VERSION";
   const prefix = (core.getInput("prefix") || "").trim();
-  const version = fs.readFileSync(versionPath, "utf8").toString().trim();
+  const packageJsonFile = fs
+    .readFileSync(versionPath, "utf8")
+    .toString()
+    .trim();
+  const packageJsonArray = JSON.stringify(packageJsonFile, null, 1).split("\n");
+  let lineIndex = 0;
+  packageJsonArray.find((value, idx) => {
+    const match = value.startsWith(' "version"');
+    if (match) {
+      lineIndex = idx;
+    }
+    return match;
+  });
+  const packageJson = JSON.parse(packageJsonFile);
+  const version = packageJson.version;
+
   const preReleaseTag = core.getInput("prerelease_tag") || "";
   const newVersion = inc(
     version,
@@ -38,29 +53,30 @@ async function run() {
   if (!newVersion) {
     throw new Error("could not bump version " + version);
   }
+  packageJson.version = newVersion;
   console.log("writing new version file");
-  fs.writeFileSync(versionPath, newVersion, "utf8");
-  let linesReplaced: LineReplaced[] = [];
-  if (prefix) {
-    console.log(`replacing version patterns below [bump if ${prefix}]`);
-    const pattern = new RegExp("\\[bump if " + prefix + "\\]");
-    const res = await replacePattern({
-      pattern,
-      replacer: versionRegex,
-      value: newVersion,
-      ignore,
-    });
-    linesReplaced = res.linesReplaced;
-  } else {
-    console.log(`replacing version patterns below [bump]`);
-    const res = await replacePattern({
-      pattern: /\[bump\]/,
-      replacer: versionRegex,
-      value: newVersion,
-      ignore,
-    });
-    linesReplaced = res.linesReplaced;
-  }
+  fs.writeFileSync(versionPath, JSON.stringify(packageJson), "utf8");
+  //   let linesReplaced: LineReplaced[] = [];
+  //   if (prefix) {
+  //     console.log(`replacing version patterns below [bump if ${prefix}]`);
+  //     const pattern = new RegExp("\\[bump if " + prefix + "\\]");
+  //     const res = await replacePattern({
+  //       pattern,
+  //       replacer: versionRegex,
+  //       value: newVersion,
+  //       ignore,
+  //     });
+  //     linesReplaced = res.linesReplaced;
+  //   } else {
+  //     console.log(`replacing version patterns below [bump]`);
+  //     const res = await replacePattern({
+  //       pattern: /\[bump\]/,
+  //       replacer: versionRegex,
+  //       value: newVersion,
+  //       ignore,
+  //     });
+  //     linesReplaced = res.linesReplaced;
+  //   }
   const tagName = prefix ? prefix + "_" + newVersion : newVersion;
   const tagMsg = `${
     capitalize(prefix) + " "
@@ -82,7 +98,17 @@ async function run() {
     }),
   ]);
   console.log("setting output version=" + newVersion + " prefix=" + prefix);
-  await createAnnotations({ githubToken, newVersion: tagMsg, linesReplaced });
+  await createAnnotations({
+    githubToken,
+    newVersion: tagMsg,
+    linesReplaced: [
+      {
+        line: lineIndex,
+        path: "./package.json",
+        newValue: newVersion,
+      },
+    ],
+  });
   core.setOutput("version", newVersion);
   core.setOutput("prefix", prefix);
   core.info(`new version ${tagMsg}`);
