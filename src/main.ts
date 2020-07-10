@@ -27,7 +27,7 @@ async function run() {
     process.env.BRANCH ||
     GITHUB_REF.split("/").reverse()[0] ||
     "master";
-  const versionPath = core.getInput("version_file") || "VERSION";
+  const versionPath = core.getInput("version_file") || "package.json";
   const prefix = (core.getInput("prefix") || "").trim();
   const packageJsonFile = fs
     .readFileSync(versionPath, "utf8")
