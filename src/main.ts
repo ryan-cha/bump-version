@@ -82,26 +82,32 @@ async function run() {
   const tagMsg = `${
     capitalize(prefix) + " "
   } Auto Version Bumped! ${newVersion}`;
-  await Promise.all([
-    commit({
-      USER_EMAIL: "auto-bumper@no-reply.bumper.com",
-      USER_NAME: "auto-bumper",
-      GITHUB_TOKEN: githubToken,
-      MESSAGE: tagMsg,
-      tagName,
-      tagMsg,
-      branch,
-    }),
-    createTag({
-      GITHUB_TOKEN: githubToken,
-      tagName,
-      tagMsg,
-    }),
-  ]);
-  console.log("setting output version=" + newVersion + " prefix=" + prefix);
 
   const files = await globby("package.json");
-  console.log(files);
+  console.log("files", files);
+
+  try {
+    await Promise.all([
+      commit({
+        USER_EMAIL: "auto-bumper@no-reply.bumper.com",
+        USER_NAME: "auto-bumper",
+        GITHUB_TOKEN: githubToken,
+        MESSAGE: tagMsg,
+        tagName,
+        tagMsg,
+        branch,
+      }),
+      createTag({
+        GITHUB_TOKEN: githubToken,
+        tagName,
+        tagMsg,
+      }),
+    ]);
+  } catch (error) {
+    console.log("commit , tag failed", error);
+  }
+  console.log("setting output version=" + newVersion + " prefix=" + prefix);
+
   //   if (files && files.length) {
   //     await createAnnotations({
   //       githubToken,
