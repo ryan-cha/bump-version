@@ -13,8 +13,6 @@ export default async ({
   branch,
 }) => {
   try {
-    console.log("process.env", process.env);
-
     if (!GITHUB_TOKEN) {
       console.log("aaaaa missing required env vars, skipping commit creation");
       core.setFailed("missing required env vars");
