@@ -17,6 +17,7 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
   const owner = process.env.GITHUB_ACTOR as string;
   const repo = process.env.GITHUB_REPOSITORY?.split("/").pop() as string;
 
+  console.log("process.env", process.env);
   const tags = await git.repos.listTags({
     owner,
     repo,
