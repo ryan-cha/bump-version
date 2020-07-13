@@ -43,6 +43,7 @@ export async function createAnnotations({
       },
       status: "completed",
     });
+    console.log("Annotation has been created!");
   } catch (error) {
     console.log("Error in createAnnotation", error);
     core.setFailed(error.message);

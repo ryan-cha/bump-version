@@ -11,7 +11,6 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
     core.setFailed("missing required env vars");
     return;
   }
-  console.log(`Creating tag "${tagName}"`);
   // Check for existing tag
   const git = github.getOctokit(GITHUB_TOKEN);
   const owner = process.env.GITHUB_REPOSITORY_OWNER as string;
@@ -51,6 +50,7 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
     core.debug(
       `Reference ${newReference.data.ref} available at ${newReference.data.url}`
     );
+    console.log(`Created tag "${tagName}"`);
     return { url: newReference.data.url };
   } catch (error) {
     console.log("Error in createTag", error);
