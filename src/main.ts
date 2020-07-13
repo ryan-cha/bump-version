@@ -56,7 +56,7 @@ async function run() {
   }
   packageJson.version = newVersion;
   console.log("writing new version file");
-  fs.writeFileSync(versionPath, JSON.stringify(packageJson), "utf8");
+  fs.writeFileSync(versionPath, JSON.stringify(packageJson, null, 2), "utf8");
   //   let linesReplaced: LineReplaced[] = [];
   //   if (prefix) {
   //     console.log(`replacing version patterns below [bump if ${prefix}]`);

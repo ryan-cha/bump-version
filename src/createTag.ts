@@ -14,12 +14,14 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
   console.log(`creating tag "${tagName}"`);
   // Check for existing tag
   const git = github.getOctokit(GITHUB_TOKEN);
-  const owner = process.env.GITHUB_ACTOR as string;
+  const owner = process.env.GITHUB_REPOSITORY_OWNER as string;
   const repo = process.env.GITHUB_REPOSITORY?.split("/").pop() as string;
 
-  console.log("process.env", process.env);
+  // console.log("process.env", process.env);
   const tags = await git.repos.listTags({
-    ...github.context.repo,
+    // ...github.context.repo,
+    owner,
+    repo,
     per_page: 100,
   });
 
@@ -32,7 +34,9 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
 
   try {
     const newTag = await git.git.createTag({
-      ...github.context.repo,
+      //...github.context.repo,
+      owner,
+      repo,
       tag: tagName,
       message: tagMsg,
       object: process.env.GITHUB_SHA as string,
@@ -40,7 +44,9 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
     });
 
     const newReference = await git.git.createRef({
-      ...github.context.repo,
+      //...github.context.repo,
+      owner,
+      repo,
       ref: `refs/tags/${newTag.data.tag}`,
       sha: newTag.data.sha,
     });

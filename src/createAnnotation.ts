@@ -85,6 +85,7 @@ export async function createAnnotations({
 }
 
 const getSha = (context) => {
+  console.log("getting sha ", context, context.sha, context.payload);
   if (context.eventName === "pull_request") {
     return context.payload.pull_request.head.sha;
   } else {
