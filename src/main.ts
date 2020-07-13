@@ -84,7 +84,6 @@ async function run() {
   } Auto Version Bumped! ${newVersion}`;
 
   const files = await globby("package.json");
-  console.log("files", files);
 
   try {
     await Promise.all([
@@ -102,25 +101,36 @@ async function run() {
         tagName,
         tagMsg,
       }),
+      createAnnotations({
+        githubToken,
+        newVersion: tagMsg,
+        linesReplaced: [
+          {
+            line: lineIndex,
+            path: files[0],
+            newValue: newVersion,
+          },
+        ],
+      }),
     ]);
   } catch (error) {
     console.log("commit , tag failed", error);
   }
   console.log("setting output version=" + newVersion + " prefix=" + prefix);
 
-  //   if (files && files.length) {
-  //     await createAnnotations({
-  //       githubToken,
-  //       newVersion: tagMsg,
-  //       linesReplaced: [
-  //         {
-  //           line: lineIndex,
-  //           path: files[0],
-  //           newValue: newVersion,
-  //         },
-  //       ],
-  //     });
-  //   }
+  // if (files && files.length) {
+  //   await createAnnotations({
+  //     githubToken,
+  //     newVersion: tagMsg,
+  //     linesReplaced: [
+  //       {
+  //         line: lineIndex,
+  //         path: files[0],
+  //         newValue: newVersion,
+  //       },
+  //     ],
+  //   });
+  // }
 
   core.setOutput("version", newVersion);
   core.setOutput("prefix", prefix);
