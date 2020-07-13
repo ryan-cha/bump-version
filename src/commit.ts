@@ -2,6 +2,7 @@ import { exec } from "@actions/exec";
 import * as core from "@actions/core";
 import { ExecOptions } from "@actions/exec/lib/interfaces";
 import { retry } from "./support";
+import * as github from "@actions/github";
 
 export default async ({
   USER_NAME,
@@ -21,37 +22,53 @@ export default async ({
     console.log(`committing changes with message "${MESSAGE}"`);
     const REMOTE_REPO = `https://${process.env.GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
 
-    const options = {
-      cwd: process.env.GITHUB_WORKSPACE,
-      listeners: {
-        stdline: core.debug,
-        stderr: core.debug,
-        debug: core.debug,
+    const git = github.getOctokit(GITHUB_TOKEN);
+    const owner = process.env.GITHUB_REPOSITORY_OWNER as string;
+    const repo = process.env.GITHUB_REPOSITORY?.split("/").pop() as string;
+
+    await git.git.createCommit({
+      owner,
+      repo,
+      message: MESSAGE,
+      committer: {
+        name: USER_NAME,
+        email: USER_EMAIL,
       },
-    } as any;
+      tree: github.context.payload.head_commit.tree_id,
+      parents: github.context.payload.head_commit.id,
+    });
 
-    await exec("git", ["config", "user.name", `"${USER_NAME}"`], options);
-    await exec("git", ["config", "user.email", `"${USER_EMAIL}"`], options);
+    // const options = {
+    //   cwd: process.env.GITHUB_WORKSPACE,
+    //   listeners: {
+    //     stdline: core.debug,
+    //     stderr: core.debug,
+    //     debug: core.debug,
+    //   },
+    // } as any;
 
-    await exec("git", ["remote", "add", "publisher", REMOTE_REPO], options);
-    // await exec('git', ['show-ref'], options)
-    // await exec('git', ['branch', '--verbose'], options)
+    // await exec("git", ["config", "user.name", `"${USER_NAME}"`], options);
+    // await exec("git", ["config", "user.email", `"${USER_EMAIL}"`], options);
 
-    await exec("git", ["add", "-A"], options);
+    // await exec("git", ["remote", "add", "publisher", REMOTE_REPO], options);
+    // // await exec('git', ['show-ref'], options)
+    // // await exec('git', ['branch', '--verbose'], options)
 
-    try {
-      await exec("git", ["commit", "-v", "-m", `${MESSAGE}`], options);
-    } catch (err) {
-      core.debug("nothing to commit");
-      return;
-    }
-    await exec("git", ["branch", "bump_tmp_"], options);
-    await exec("git", ["checkout", branch], options);
-    await exec("git", ["merge", "bump_tmp_"], options);
-    await push({ branch, options });
+    // await exec("git", ["add", "-A"], options);
+
+    // try {
+    //   await exec("git", ["commit", "-v", "-m", `${MESSAGE}`], options);
+    // } catch (err) {
+    //   core.debug("nothing to commit");
+    //   return;
+    // }
+    // await exec("git", ["branch", "bump_tmp_"], options);
+    // await exec("git", ["checkout", branch], options);
+    // await exec("git", ["merge", "bump_tmp_"], options);
+    // await push({ branch, options });
   } catch (err) {
     core.setFailed(err.message);
-    console.log(err);
+    console.log("Commit failed", err);
     process.exit(1);
   }
 };
