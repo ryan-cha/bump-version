@@ -26,6 +26,18 @@ export async function createAnnotations({
     //   }
     // );
 
+    const { data: refData } = await octokit.git.getRef({
+      ...github.context.repo,
+      ref: `heads/master`,
+    });
+    console.log("ref = ", refData);
+    const commitSha = refData.object.sha;
+    const { data: commitData } = await octokit.git.getCommit({
+      ...github.context.repo,
+      commit_sha: commitSha,
+    });
+    console.log("commit = ", commitData);
+
     console.log(
       "annotation params = ",
       JSON.stringify(
