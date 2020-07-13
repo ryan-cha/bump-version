@@ -26,26 +26,33 @@ export async function createAnnotations({
     //   }
     // );
 
-    console.log("annotation params = ", {
-      ...github.context.repo,
-      name: "bump-version",
-      head_sha: getSha(github.context),
-      conclusion: "success",
-      output: {
-        title: `Bumped version to ${newVersion}`,
-        summary: `Bumped version to ${newVersion}`,
-        annotations: [
-          {
-            annotation_level: "notice",
-            title: `Bumped version to ${linesReplaced[0].newValue}`,
-            message: `Bumped version to ${linesReplaced[0].newValue}`,
-            path: linesReplaced[0].path.replace("./", ""),
-            start_line: linesReplaced[0].line,
-            end_line: linesReplaced[0].line,
+    console.log(
+      "annotation params = ",
+      JSON.stringify(
+        {
+          ...github.context.repo,
+          name: "bump-version",
+          head_sha: getSha(github.context),
+          conclusion: "success",
+          output: {
+            title: `Bumped version to ${newVersion}`,
+            summary: `Bumped version to ${newVersion}`,
+            annotations: [
+              {
+                annotation_level: "notice",
+                title: `Bumped version to ${linesReplaced[0].newValue}`,
+                message: `Bumped version to ${linesReplaced[0].newValue}`,
+                path: linesReplaced[0].path.replace("./", ""),
+                start_line: linesReplaced[0].line,
+                end_line: linesReplaced[0].line,
+              },
+            ],
           },
-        ],
-      },
-    });
+        },
+        null,
+        2
+      )
+    );
 
     const { data } = await octokit.checks.create({
       ...github.context.repo,
@@ -71,7 +78,7 @@ export async function createAnnotations({
     });
     console.log("annotation result:", data);
   } catch (error) {
-    console.log(error);
+    console.log("Error in createAnnotation.ts", error);
     // core.error(`${JSON.stringify(error, null, 2)}`)
     return;
   }

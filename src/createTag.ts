@@ -30,24 +30,29 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
     }
   }
 
-  const newTag = await git.git.createTag({
-    owner,
-    repo,
-    tag: tagName,
-    message: tagMsg,
-    object: process.env.GITHUB_SHA as string,
-    type: "commit",
-  });
+  try {
+    const newTag = await git.git.createTag({
+      owner,
+      repo,
+      tag: tagName,
+      message: tagMsg,
+      object: process.env.GITHUB_SHA as string,
+      type: "commit",
+    });
 
-  const newReference = await git.git.createRef({
-    owner,
-    repo,
-    ref: `refs/tags/${newTag.data.tag}`,
-    sha: newTag.data.sha,
-  });
+    const newReference = await git.git.createRef({
+      owner,
+      repo,
+      ref: `refs/tags/${newTag.data.tag}`,
+      sha: newTag.data.sha,
+    });
 
-  core.debug(
-    `Reference ${newReference.data.ref} available at ${newReference.data.url}`
-  );
-  return { url: newReference.data.url };
+    core.debug(
+      `Reference ${newReference.data.ref} available at ${newReference.data.url}`
+    );
+    return { url: newReference.data.url };
+  } catch (error) {
+    console.log("Error in createTag.ts", error);
+  }
+  return { url: null };
 }
