@@ -10,10 +10,23 @@ import {
   versionRegex,
 } from "./support";
 import { inc } from "semver";
+import { exec } from "@actions/exec";
 
 import { createAnnotations } from "./createAnnotation";
 
 async function run() {
+  const options = {
+    cwd: process.env.GITHUB_WORKSPACE,
+    listeners: {
+      stdline: core.debug,
+      stderr: core.debug,
+      debug: core.debug,
+    },
+  } as any;
+
+  const versionResult = await exec("npm", ["version", "patch"], options);
+  console.log("version result = ", versionResult);
+
   const githubToken = core.getInput("github_token") || process.env.GITHUB_TOKEN;
   const ignore =
     core
