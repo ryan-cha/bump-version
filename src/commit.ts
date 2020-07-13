@@ -35,7 +35,7 @@ export default async ({
         email: USER_EMAIL,
       },
       tree: github.context.payload.head_commit.tree_id,
-      parents: github.context.payload.head_commit.id,
+      parents: [github.context.payload.head_commit.id],
     });
 
     // const options = {
