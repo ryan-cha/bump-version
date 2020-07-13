@@ -46,7 +46,7 @@ export async function createAnnotations({
       status: "completed",
       // started_at: now,
     });
-    // console.log(data)
+    console.log("annotation result:", data);
   } catch (error) {
     console.log(error);
     // core.error(`${JSON.stringify(error, null, 2)}`)
