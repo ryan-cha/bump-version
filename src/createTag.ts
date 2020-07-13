@@ -11,15 +11,13 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
     core.setFailed("missing required env vars");
     return;
   }
-  console.log(`creating tag "${tagName}"`);
+  console.log(`Creating tag "${tagName}"`);
   // Check for existing tag
   const git = github.getOctokit(GITHUB_TOKEN);
   const owner = process.env.GITHUB_REPOSITORY_OWNER as string;
   const repo = process.env.GITHUB_REPOSITORY?.split("/").pop() as string;
 
-  // console.log("process.env", process.env);
   const tags = await git.repos.listTags({
-    // ...github.context.repo,
     owner,
     repo,
     per_page: 100,
@@ -34,7 +32,6 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
 
   try {
     const newTag = await git.git.createTag({
-      //...github.context.repo,
       owner,
       repo,
       tag: tagName,
@@ -56,7 +53,8 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
     );
     return { url: newReference.data.url };
   } catch (error) {
-    console.log("Error in createTag.ts", error);
+    console.log("Error in createTag", error);
+    core.setFailed(error.message);
+    return { url: null };
   }
-  return { url: null };
 }

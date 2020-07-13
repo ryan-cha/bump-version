@@ -9,34 +9,17 @@ export async function createAnnotations({
   newVersion,
   linesReplaced = [] as LineReplaced[],
 }) {
-  // console.log("input = ", linesReplaced);
   try {
     const octokit = github.getOctokit(githubToken);
-    // const now = new Date().toISOString()
-    // const annotations: ChecksCreateParamsOutputAnnotations[] = linesReplaced.map(
-    //   (x) => {
-    //     return {
-    //       annotation_level: "notice",
-    //       title: `Bumped version to ${x.newValue}`,
-    //       message: `Bumped version to ${x.newValue}`,
-    //       path: x.path.replace("./", ""),
-    //       start_line: x.line,
-    //       end_line: x.line,
-    //     };
-    //   }
-    // );
-
     const { data: refData } = await octokit.git.getRef({
       ...github.context.repo,
       ref: `heads/master`,
     });
-    console.log("ref = ", refData);
     const commitSha = refData.object.sha;
     const { data: commitData } = await octokit.git.getCommit({
       ...github.context.repo,
       commit_sha: commitSha,
     });
-    console.log("commit = ", commitData);
 
     const { data } = await octokit.checks.create({
       ...github.context.repo,
@@ -59,12 +42,10 @@ export async function createAnnotations({
         ],
       },
       status: "completed",
-      // started_at: now,
     });
-    // console.log("annotation result:", data);
   } catch (error) {
-    console.log("Error in createAnnotation.ts", error);
-    // core.error(`${JSON.stringify(error, null, 2)}`)
+    console.log("Error in createAnnotation", error);
+    core.setFailed(error.message);
     return;
   }
 }

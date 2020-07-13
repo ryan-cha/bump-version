@@ -59,38 +59,14 @@ async function run() {
     throw new Error("could not bump version " + version);
   }
   packageJson.version = newVersion;
-  console.log("writing new version file");
+  console.log(`Rewriting version file: ${version} => ${newVersion}`);
   fs.writeFileSync(versionPath, JSON.stringify(packageJson, null, 2), "utf8");
-  //   let linesReplaced: LineReplaced[] = [];
-  //   if (prefix) {
-  //     console.log(`replacing version patterns below [bump if ${prefix}]`);
-  //     const pattern = new RegExp("\\[bump if " + prefix + "\\]");
-  //     const res = await replacePattern({
-  //       pattern,
-  //       replacer: versionRegex,
-  //       value: newVersion,
-  //       ignore,
-  //     });
-  //     linesReplaced = res.linesReplaced;
-  //   } else {
-  //     console.log(`replacing version patterns below [bump]`);
-  //     const res = await replacePattern({
-  //       pattern: /\[bump\]/,
-  //       replacer: versionRegex,
-  //       value: newVersion,
-  //       ignore,
-  //     });
-  //     linesReplaced = res.linesReplaced;
-  //   }
   const tagName = prefix ? prefix + "_" + newVersion : newVersion;
-  const tagMsg = `${
-    capitalize(prefix) + " "
-  } Auto Version Bumped! ${newVersion}`;
-
+  const tagMsg = `Version auto-bumped: ${newVersion}`;
   const files = await globby("package.json");
 
   try {
-    console.log("  >> ======= COMMIT ========");
+    console.log("\n\n  ======= COMMIT ========");
     await commit({
       USER_EMAIL: "auto-bumper@no-reply.bumper.com",
       USER_NAME: "auto-bumper",
@@ -100,14 +76,14 @@ async function run() {
       tagMsg,
       branch,
     });
-    console.log("  >> ======= TAG ========");
+    console.log("\n\n  ======= TAG ========");
     await createTag({
       GITHUB_TOKEN: githubToken,
       tagName,
       tagMsg,
     });
 
-    console.log("  >> ======= ANNOTATION ========");
+    console.log("\n\n  ======= ANNOTATION ========");
     await createAnnotations({
       githubToken,
       newVersion: tagMsg,
@@ -119,56 +95,13 @@ async function run() {
         },
       ],
     });
-
-    // await Promise.all([
-    //   commit({
-    //     USER_EMAIL: "auto-bumper@no-reply.bumper.com",
-    //     USER_NAME: "auto-bumper",
-    //     GITHUB_TOKEN: githubToken,
-    //     MESSAGE: tagMsg,
-    //     tagName,
-    //     tagMsg,
-    //     branch,
-    //   }),
-    //   createTag({
-    //     GITHUB_TOKEN: githubToken,
-    //     tagName,
-    //     tagMsg,
-    //   }),
-    //   createAnnotations({
-    //     githubToken,
-    //     newVersion: tagMsg,
-    //     linesReplaced: [
-    //       {
-    //         line: lineIndex,
-    //         path: files[0],
-    //         newValue: newVersion,
-    //       },
-    //     ],
-    //   }),
-    // ]);
+    core.setOutput("version", newVersion);
+    core.info(`New version ${tagMsg}`);
   } catch (error) {
-    console.log("commit , tag failed", error);
+    console.log("Main failed", error);
+    core.setFailed(error.message);
+    process.exit(1);
   }
-  console.log("setting output version=" + newVersion + " prefix=" + prefix);
-
-  // if (files && files.length) {
-  //   await createAnnotations({
-  //     githubToken,
-  //     newVersion: tagMsg,
-  //     linesReplaced: [
-  //       {
-  //         line: lineIndex,
-  //         path: files[0],
-  //         newValue: newVersion,
-  //       },
-  //     ],
-  //   });
-  // }
-
-  core.setOutput("version", newVersion);
-  core.setOutput("prefix", prefix);
-  core.info(`new version ${tagMsg}`);
 }
 
 try {

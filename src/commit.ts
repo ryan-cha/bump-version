@@ -19,25 +19,8 @@ export default async ({
       core.setFailed("missing required env vars");
       return;
     }
-    console.log(`committing changes with message "${MESSAGE}"`);
+    console.log(`Committing changes with message "${MESSAGE}"`);
     const REMOTE_REPO = `https://${process.env.GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
-
-    // const git = github.getOctokit(GITHUB_TOKEN);
-    // const owner = process.env.GITHUB_REPOSITORY_OWNER as string;
-    // const repo = process.env.GITHUB_REPOSITORY?.split("/").pop() as string;
-
-    // const commitResult = await git.git.createCommit({
-    //   owner,
-    //   repo,
-    //   message: MESSAGE,
-    //   committer: {
-    //     name: USER_NAME,
-    //     email: USER_EMAIL,
-    //   },
-    //   tree: github.context.payload.head_commit.tree_id,
-    //   parents: [github.context.payload.head_commit.id],
-    // });
-    // console.log("commit result ", commitResult);
 
     const options = {
       cwd: process.env.GITHUB_WORKSPACE,
@@ -70,7 +53,6 @@ export default async ({
   } catch (err) {
     core.setFailed(err.message);
     console.log("Commit failed", err);
-    process.exit(1);
   }
 };
 
