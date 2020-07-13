@@ -19,8 +19,7 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
 
   console.log("process.env", process.env);
   const tags = await git.repos.listTags({
-    owner,
-    repo,
+    ...github.context.repo,
     per_page: 100,
   });
 
@@ -33,8 +32,7 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
 
   try {
     const newTag = await git.git.createTag({
-      owner,
-      repo,
+      ...github.context.repo,
       tag: tagName,
       message: tagMsg,
       object: process.env.GITHUB_SHA as string,
@@ -42,8 +40,7 @@ export async function createTag({ GITHUB_TOKEN, tagName, tagMsg = "" }) {
     });
 
     const newReference = await git.git.createRef({
-      owner,
-      repo,
+      ...github.context.repo,
       ref: `refs/tags/${newTag.data.tag}`,
       sha: newTag.data.sha,
     });
