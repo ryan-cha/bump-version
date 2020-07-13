@@ -86,7 +86,7 @@ async function run() {
   const files = await globby("package.json");
 
   try {
-    console.log("======= COMMIT ========");
+    console.log("  >> ======= COMMIT ========");
     await commit({
       USER_EMAIL: "auto-bumper@no-reply.bumper.com",
       USER_NAME: "auto-bumper",
@@ -95,15 +95,15 @@ async function run() {
       tagName,
       tagMsg,
       branch,
-    }),
-      console.log("======= TAG ========");
+    });
+    console.log("  >> ======= TAG ========");
     await createTag({
       GITHUB_TOKEN: githubToken,
       tagName,
       tagMsg,
     });
 
-    console.log("======= ANNOTATION ========");
+    console.log("  >> ======= ANNOTATION ========");
     await createAnnotations({
       githubToken,
       newVersion: tagMsg,
