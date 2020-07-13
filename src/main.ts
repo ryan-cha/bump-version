@@ -86,33 +86,63 @@ async function run() {
   const files = await globby("package.json");
 
   try {
-    await Promise.all([
-      commit({
-        USER_EMAIL: "auto-bumper@no-reply.bumper.com",
-        USER_NAME: "auto-bumper",
-        GITHUB_TOKEN: githubToken,
-        MESSAGE: tagMsg,
-        tagName,
-        tagMsg,
-        branch,
-      }),
-      createTag({
-        GITHUB_TOKEN: githubToken,
-        tagName,
-        tagMsg,
-      }),
-      createAnnotations({
-        githubToken,
-        newVersion: tagMsg,
-        linesReplaced: [
-          {
-            line: lineIndex,
-            path: files[0],
-            newValue: newVersion,
-          },
-        ],
-      }),
-    ]);
+    console.log("======= COMMIT ========");
+    await commit({
+      USER_EMAIL: "auto-bumper@no-reply.bumper.com",
+      USER_NAME: "auto-bumper",
+      GITHUB_TOKEN: githubToken,
+      MESSAGE: tagMsg,
+      tagName,
+      tagMsg,
+      branch,
+    }),
+      console.log("======= TAG ========");
+    await createTag({
+      GITHUB_TOKEN: githubToken,
+      tagName,
+      tagMsg,
+    });
+
+    console.log("======= ANNOTATION ========");
+    await createAnnotations({
+      githubToken,
+      newVersion: tagMsg,
+      linesReplaced: [
+        {
+          line: lineIndex,
+          path: files[0],
+          newValue: newVersion,
+        },
+      ],
+    });
+
+    // await Promise.all([
+    //   commit({
+    //     USER_EMAIL: "auto-bumper@no-reply.bumper.com",
+    //     USER_NAME: "auto-bumper",
+    //     GITHUB_TOKEN: githubToken,
+    //     MESSAGE: tagMsg,
+    //     tagName,
+    //     tagMsg,
+    //     branch,
+    //   }),
+    //   createTag({
+    //     GITHUB_TOKEN: githubToken,
+    //     tagName,
+    //     tagMsg,
+    //   }),
+    //   createAnnotations({
+    //     githubToken,
+    //     newVersion: tagMsg,
+    //     linesReplaced: [
+    //       {
+    //         line: lineIndex,
+    //         path: files[0],
+    //         newValue: newVersion,
+    //       },
+    //     ],
+    //   }),
+    // ]);
   } catch (error) {
     console.log("commit , tag failed", error);
   }

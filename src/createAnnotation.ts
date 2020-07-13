@@ -9,7 +9,7 @@ export async function createAnnotations({
   newVersion,
   linesReplaced = [] as LineReplaced[],
 }) {
-  console.log("input = ", linesReplaced);
+  // console.log("input = ", linesReplaced);
   try {
     const octokit = github.getOctokit(githubToken);
     // const now = new Date().toISOString()
@@ -76,7 +76,7 @@ export async function createAnnotations({
       status: "completed",
       // started_at: now,
     });
-    console.log("annotation result:", data);
+    // console.log("annotation result:", data);
   } catch (error) {
     console.log("Error in createAnnotation.ts", error);
     // core.error(`${JSON.stringify(error, null, 2)}`)
