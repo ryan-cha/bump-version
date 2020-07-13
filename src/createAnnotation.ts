@@ -1,56 +1,63 @@
-import * as core from '@actions/core'
-import * as github from '@actions/github'
-import { ChecksCreateParamsOutputAnnotations } from '@octokit/rest'
-import * as fs from 'fs'
-import { LineReplaced } from './support'
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+// import { ChecksCreateParamsOutputAnnotations } from "@octokit/rest";
+import * as fs from "fs";
+import { LineReplaced } from "./support";
 
 export async function createAnnotations({
-    githubToken,
-    newVersion,
-    linesReplaced = [] as LineReplaced[],
+  githubToken,
+  newVersion,
+  linesReplaced = [] as LineReplaced[],
 }) {
-    try {
-        const octokit = new github.GitHub(githubToken)
-        // const now = new Date().toISOString()
-        const annotations: ChecksCreateParamsOutputAnnotations[] = linesReplaced.map(
-            (x) => {
-                return {
-                    annotation_level: 'notice',
-                    title: `Bumped version to ${x.newValue}`,
-                    message: `Bumped version to ${x.newValue}`,
-                    path: x.path.replace('./', ''),
-                    start_line: x.line,
-                    end_line: x.line,
-                }
-            },
-        )
-        const { data } = await octokit.checks.create({
-            ...github.context.repo,
-            name: 'bump-version',
-            head_sha: getSha(github.context),
-            conclusion: 'success',
-            output: {
-                title: `Bumped version to ${newVersion}`,
-                summary: `Bumped version to ${newVersion}`,
-                annotations,
-            },
-            status: 'completed',
-            // started_at: now,
-        })
-        // console.log(data)
-    } catch (error) {
-        console.log(error)
-        // core.error(`${JSON.stringify(error, null, 2)}`)
-        return
-    }
+  try {
+    const octokit = github.getOctokit(githubToken);
+    // const now = new Date().toISOString()
+    // const annotations: ChecksCreateParamsOutputAnnotations[] = linesReplaced.map(
+    //   (x) => {
+    //     return {
+    //       annotation_level: "notice",
+    //       title: `Bumped version to ${x.newValue}`,
+    //       message: `Bumped version to ${x.newValue}`,
+    //       path: x.path.replace("./", ""),
+    //       start_line: x.line,
+    //       end_line: x.line,
+    //     };
+    //   }
+    // );
+    const { data } = await octokit.checks.create({
+      ...github.context.repo,
+      name: "bump-version",
+      head_sha: getSha(github.context),
+      conclusion: "success",
+      output: {
+        title: `Bumped version to ${newVersion}`,
+        summary: `Bumped version to ${newVersion}`,
+        annotations: [
+          {
+            annotation_level: "notice",
+            title: `Bumped version to ${linesReplaced[0].newValue}`,
+            message: `Bumped version to ${linesReplaced[0].newValue}`,
+            path: linesReplaced[0].path.replace("./", ""),
+            start_line: linesReplaced[0].line,
+            end_line: linesReplaced[0].line,
+          },
+        ],
+      },
+      status: "completed",
+      // started_at: now,
+    });
+    // console.log(data)
+  } catch (error) {
+    console.log(error);
+    // core.error(`${JSON.stringify(error, null, 2)}`)
+    return;
+  }
 }
 
 const getSha = (context) => {
-    if (context.eventName === 'pull_request') {
-        return context.payload.pull_request.head.sha
-    } else {
-        return context.sha
-    }
-}
-
-
+  if (context.eventName === "pull_request") {
+    return context.payload.pull_request.head.sha;
+  } else {
+    return context.sha;
+  }
+};
